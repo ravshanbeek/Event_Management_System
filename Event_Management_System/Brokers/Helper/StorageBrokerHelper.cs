@@ -6,5 +6,7 @@ public static class StorageBrokerHelper
     public const string InsertUserToEvent = "[dbo].[InsertUserToEvent]";
     public const string GetAllEvents = "[dbo].[GetAllEvents]";
     public const string AddRoom = "[dbo].[AddRoom]";
+    public const string OrderEvent = "[dbo].[orderEvent]";
+
 
 }

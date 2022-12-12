@@ -7,6 +7,22 @@ namespace Event_Management_System.Brokers;
 
     public partial class StorageBroker : IStorageBroker
     {
+    public async Task AddRoom(Rooms room)
+    {
+        using var connection = GetConnection();
+        using var command = connection.CreateCommand();
+
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = StorageBrokerHelper.AddRoom;
+
+        command.Parameters.Add(new SqlParameter("@number", room.Number));
+        command.Parameters.Add(new SqlParameter("@capacity", room.Capacity));
+        
+        await connection.OpenAsync();
+
+        command.ExecuteNonQuery();
+    }
+
     public async Task<List<Orders>> GetAllEevents()
     {
         using var connection = GetConnection();
@@ -57,7 +73,26 @@ namespace Event_Management_System.Brokers;
             return user;
         }
 
-        public async Task RegisterToEvent(OrdersForUsers order)
+    public async Task OrderEvent(Orders order)
+    {
+        using var connection = GetConnection();
+        using var command = connection.CreateCommand();
+
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = StorageBrokerHelper.OrderEvent;
+
+        command.Parameters.Add(new SqlParameter("@companyId", order.CompanyId));
+        command.Parameters.Add(new SqlParameter("@eventName", order.EventName));
+        command.Parameters.Add(new SqlParameter("@roomId", order.RoomId));
+        command.Parameters.Add(new SqlParameter("@beginAt", order.BeginAt));
+        command.Parameters.Add(new SqlParameter("@endAt", order.EndAt));
+
+        await connection.OpenAsync();
+
+        command.ExecuteNonQuery();
+    }
+
+    public async Task RegisterToEvent(OrdersForUsers order)
         {
             using var connection = GetConnection();
             using var command = connection.CreateCommand();
