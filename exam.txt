@@ -1,0 +1,126 @@
+db.diagram
+https://dbdiagram.io/d/6396b1b899cb1f3b55a0b401 
+
+sql database
+--create database Events
+create table Users(
+		id int identity(1,1),
+		name varchar(20) not null,
+		surname varchar(20) not null,
+		login varchar(20) not null,
+		password varchar(20) not null,
+		role int not null,
+
+		CONSTRAINT PK_Users_Id PRIMARY KEY (id)
+)
+
+create table Rooms(
+		id int identity(1,1),
+		number int not null,
+		capacity int not null,
+
+		CONSTRAINT PK_Rooms_Id PRIMARY KEY (id)
+)
+
+
+create table RoomDetails(
+		id int identity(1,1),
+		roomId int,
+		bookedSittings int,
+		capacity int,
+		eventId int not null,
+		beginAt datetime,
+		endAt datetime
+
+		CONSTRAINT FK_RoomDetails_Id FOREIGN KEY (roomId)
+		REFERENCES Rooms(id),
+
+		CONSTRAINT FK_RoomDetails_EventId FOREIGN KEY (eventId)
+		REFERENCES Orders(id)
+)
+
+create table Orders (
+		id int identity(1,1),
+		companyId int,
+		eventName varchar(100),
+		roomId int,
+		beginAt datetime,
+		endAt datetime,
+
+		CONSTRAINT PK_Orders_Id Primary KEY (id),
+
+		CONSTRAINT FK_Orders_companyId FOREIGN KEY (companyId)
+		REFERENCES Users(id),
+
+		CONSTRAINT FK_Orders_roomId FOREIGN KEY (roomId)
+		REFERENCES Rooms(id)
+)
+
+create table OrdersForUsers(
+		id int identity(1,1),
+		eventId int,
+		userId int,
+		sitting int,
+
+		CONSTRAINT FK_OrdersForUsers_eventId FOREIGN KEY (eventId)
+		REFERENCES Orders(id),
+
+		CONSTRAINT FK_OrdersForUsers_userId FOREIGN KEY (userId)
+		REFERENCES Users(id)
+)
+
+create procedure InsertUserToEvent (
+			@eventId int,	
+			@userId int,
+			@sitting int)
+		AS
+		begin
+
+		INSERT INTO OrdersForUsers (eventId,userId,sitting) 
+
+		VALUES (@eventId,@userId,@sitting)
+
+		end
+
+create procedure InsertToUsers (
+			@name varchar(20),	
+			@surname varchar(20),
+			@login varchar(20),
+			@password varchar(20),
+			@role int)
+		
+		as
+begin
+		INSERT INTO Users (name,surname,login,password,role) 
+
+		VALUES (@name,@surname,@login,@password,@role)
+end
+
+create view GetAllEvents
+as
+select eventName,roomId,beginAt,endAt from Orders
+
+
+
+create Procedure AddRoom(@number int,@capacity int)
+		as
+begin
+		insert into Rooms(number,capacity)
+		values(@number,@capacity)
+end
+
+
+create procedure orderEvent(
+		@companyId int ,
+		@eventName varchar(100),
+		@roomId int,
+		@beginAt datetime,
+		@endAt datetime
+		)
+as
+begin 
+
+insert into Orders(companyId,eventName,roomId,beginAt,endAt)
+values (@companyId,@eventName,@roomId,@beginAt,@endAt)
+
+end
